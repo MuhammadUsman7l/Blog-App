@@ -1,16 +1,37 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import authService from "./appwrie/auth.service";
+import { login, logout } from "./store/authSlice";
+import { Header, Footer } from "./components/index.js";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const { loading, setLoading } = useState(true);
+  const dispach = useDispatch();
 
-  return (
-    <>
-      <h1>A Blog App with appwrite</h1>
-    </>
-  );
+  useEffect(() => {
+    authService
+      .getCurrentUser()
+      .then((userData) => {
+        if (userData) {
+          dispach(login({ userData }));
+        } else {
+          dispach(logout());
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  return !loading ? (
+    <div className="min-h-screen flex flex-wrap content-between bg-gray-500">
+      <div className="w-full block">
+        <Header />
+        <main>{/* todo */}</main>
+        <Footer />
+      </div>
+    </div>
+  ) : null;
 }
 
 export default App;
